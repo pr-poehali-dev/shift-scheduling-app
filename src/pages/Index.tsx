@@ -110,17 +110,6 @@ const Index = () => {
     return <Badge className={colors[status]}>{labels[status]}</Badge>;
   };
 
-  const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-  const weekSchedule = [
-    { day: 'Пн', date: '2 дек', shift: 'day', hours: 12 },
-    { day: 'Вт', date: '3 дек', shift: 'night', hours: 12 },
-    { day: 'Ср', date: '4 дек', shift: null, hours: 0 },
-    { day: 'Чт', date: '5 дек', shift: 'day', hours: 12 },
-    { day: 'Пт', date: '6 дек', shift: 'day', hours: 12 },
-    { day: 'Сб', date: '7 дек', shift: 'night', hours: 12 },
-    { day: 'Вс', date: '8 дек', shift: null, hours: 0 },
-  ];
-
   const renderShifts = () => (
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
@@ -129,38 +118,6 @@ const Index = () => {
           {shifts.filter(s => s.status === 'upcoming').length} предстоит
         </Badge>
       </div>
-
-      <Card className="p-5 border-2 mb-6">
-        <h3 className="font-semibold text-lg mb-4">График на неделю</h3>
-        <div className="grid grid-cols-7 gap-2">
-          {weekSchedule.map((day, index) => (
-            <div key={index} className="text-center">
-              <div className="text-xs text-muted-foreground mb-2">{day.day}</div>
-              <div className="text-xs text-muted-foreground mb-2">{day.date}</div>
-              <div className={`h-20 rounded-lg flex flex-col items-center justify-center ${
-                day.shift === 'day' ? 'gradient-purple-pink' :
-                day.shift === 'night' ? 'bg-indigo-600' :
-                'bg-gray-200'
-              }`}>
-                {day.shift && (
-                  <>
-                    <Icon 
-                      name={day.shift === 'day' ? 'Sun' : 'Moon'} 
-                      className="text-white mb-1" 
-                      size={20} 
-                    />
-                    <span className="text-xs text-white font-medium">{day.hours}ч</span>
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Всего часов:</span>
-          <span className="font-bold text-primary">60 часов</span>
-        </div>
-      </Card>
 
       {shifts.map((shift, index) => (
         <Card 
