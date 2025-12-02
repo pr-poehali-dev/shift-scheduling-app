@@ -336,7 +336,7 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 mt-8">
+      <main className="fixed bottom-32 left-4 w-96 px-4">
         {renderContent()}
       </main>
 
