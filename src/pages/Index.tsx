@@ -2,267 +2,127 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 
-type TabType = 'shifts' | 'schedule' | 'profile' | 'notifications';
+type TabType = 'board' | 'my-shifts' | 'profile';
 
-interface Shift {
+interface AvailableShift {
+  id: string;
+  date: string;
+  dayOfWeek: string;
+  time: string;
+  type: 'day' | 'night';
+  location: string;
+  slots: number;
+  pay: number;
+}
+
+interface MyShift {
   id: string;
   date: string;
   time: string;
   type: 'day' | 'night';
-  status: 'active' | 'upcoming' | 'completed';
   location: string;
-}
-
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  type: 'new-shift' | 'reminder' | 'info';
-  read: boolean;
+  status: 'upcoming' | 'completed';
+  pay: number;
 }
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('shifts');
+  const [activeTab, setActiveTab] = useState<TabType>('board');
 
-  const shifts: Shift[] = [
-    {
-      id: '1',
-      date: '2 декабря',
-      time: '8:00 - 20:00',
-      type: 'day',
-      status: 'active',
-      location: 'Склад №1',
-    },
-    {
-      id: '2',
-      date: '3 декабря',
-      time: '20:00 - 8:00',
-      type: 'night',
-      status: 'upcoming',
-      location: 'Склад №2',
-    },
-    {
-      id: '3',
-      date: '5 декабря',
-      time: '8:00 - 20:00',
-      type: 'day',
-      status: 'upcoming',
-      location: 'Склад №1',
-    },
+  const availableShifts: AvailableShift[] = [
+    { id: '1', date: '2 дек', dayOfWeek: 'Понедельник', time: '8:00 - 20:00', type: 'day', location: 'Склад Север', slots: 5, pay: 2400 },
+    { id: '2', date: '2 дек', dayOfWeek: 'Понедельник', time: '20:00 - 8:00', type: 'night', location: 'Склад Юг', slots: 3, pay: 2800 },
+    { id: '3', date: '3 дек', dayOfWeek: 'Вторник', time: '8:00 - 20:00', type: 'day', location: 'Склад Запад', slots: 8, pay: 2400 },
+    { id: '4', date: '3 дек', dayOfWeek: 'Вторник', time: '20:00 - 8:00', type: 'night', location: 'Склад Север', slots: 4, pay: 2800 },
+    { id: '5', date: '4 дек', dayOfWeek: 'Среда', time: '8:00 - 20:00', type: 'day', location: 'Склад Центр', slots: 10, pay: 2400 },
+    { id: '6', date: '4 дек', dayOfWeek: 'Среда', time: '20:00 - 8:00', type: 'night', location: 'Склад Восток', slots: 2, pay: 2800 },
   ];
 
-  const availableShifts = [
-    { id: '4', date: '6 декабря', time: '8:00 - 20:00', type: 'day' as const, location: 'Склад №1' },
-    { id: '5', date: '6 декабря', time: '20:00 - 8:00', type: 'night' as const, location: 'Склад №2' },
-    { id: '6', date: '7 декабря', time: '8:00 - 20:00', type: 'day' as const, location: 'Склад №3' },
-    { id: '7', date: '7 декабря', time: '20:00 - 8:00', type: 'night' as const, location: 'Склад №1' },
-    { id: '8', date: '8 декабря', time: '8:00 - 20:00', type: 'day' as const, location: 'Склад №2' },
+  const myShifts: MyShift[] = [
+    { id: '1', date: '5 декабря', time: '8:00 - 20:00', type: 'day', location: 'Склад Север', status: 'upcoming', pay: 2400 },
+    { id: '2', date: '6 декабря', time: '20:00 - 8:00', type: 'night', location: 'Склад Юг', status: 'upcoming', pay: 2800 },
+    { id: '3', date: '1 декабря', time: '8:00 - 20:00', type: 'day', location: 'Склад Запад', status: 'completed', pay: 2400 },
   ];
 
-  const notifications: Notification[] = [
-    {
-      id: '1',
-      title: 'Новая смена доступна',
-      message: 'Открыта дневная смена 6 декабря на Склад №1',
-      time: '10 мин назад',
-      type: 'new-shift',
-      read: false,
-    },
-    {
-      id: '2',
-      title: 'Напоминание о смене',
-      message: 'Ваша смена начнется завтра в 8:00',
-      time: '2 часа назад',
-      type: 'reminder',
-      read: false,
-    },
-    {
-      id: '3',
-      title: 'Смена завершена',
-      message: 'Спасибо за работу! Смена 1 декабря зачтена',
-      time: 'вчера',
-      type: 'info',
-      read: true,
-    },
-  ];
-
-  const getShiftBadgeColor = (type: 'day' | 'night') => {
-    return type === 'day' 
-      ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' 
-      : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200';
-  };
-
-  const getStatusBadge = (status: Shift['status']) => {
-    const colors = {
-      active: 'bg-green-100 text-green-800',
-      upcoming: 'bg-blue-100 text-blue-800',
-      completed: 'bg-gray-100 text-gray-800',
-    };
-    const labels = {
-      active: 'Активна',
-      upcoming: 'Предстоит',
-      completed: 'Завершена',
-    };
-    return <Badge className={colors[status]}>{labels[status]}</Badge>;
-  };
-
-  const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-  const weekDates = ['2 дек', '3 дек', '4 дек', '5 дек', '6 дек', '7 дек', '8 дек'];
-
-  const renderShifts = () => (
+  const renderBoard = () => (
     <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Мои смены</h2>
-        <Badge className="gradient-purple-pink text-white px-4 py-2 text-sm">
-          {shifts.filter(s => s.status === 'upcoming').length} предстоит
-        </Badge>
-      </div>
-
-      <Card className="p-3 border-2 mb-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Icon name="Sun" className="text-yellow-600" size={18} />
-          <h3 className="font-semibold text-sm">Дневные смены (8:00 - 20:00)</h3>
-        </div>
-        <div className="grid grid-cols-7 gap-1 mb-1">
-          {weekDays.map((day, index) => (
-            <div key={index} className="text-center text-[10px] font-medium text-muted-foreground">
-              {day}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-1">
-          {[true, false, true, true, false, true, false].map((hasShift, index) => (
-            <div 
-              key={index} 
-              className={`h-10 rounded-md flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
-                hasShift 
-                  ? 'gradient-purple-pink text-white' 
-                  : 'bg-gray-100 hover:bg-gray-200 border border-dashed border-gray-300'
-              }`}
-            >
-              {hasShift ? (
-                <Icon name="Check" className="text-white" size={14} />
-              ) : (
-                <Icon name="Plus" className="text-gray-400" size={14} />
-              )}
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      <Card className="p-3 border-2 mb-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Icon name="Moon" className="text-indigo-600" size={18} />
-          <h3 className="font-semibold text-sm">Ночные смены (20:00 - 8:00)</h3>
-        </div>
-        <div className="grid grid-cols-7 gap-1 mb-1">
-          {weekDays.map((day, index) => (
-            <div key={index} className="text-center text-[10px] font-medium text-muted-foreground">
-              {day}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-1">
-          {[false, true, false, false, true, true, false].map((hasShift, index) => (
-            <div 
-              key={index} 
-              className={`h-10 rounded-md flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
-                hasShift 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-100 hover:bg-gray-200 border border-dashed border-gray-300'
-              }`}
-            >
-              {hasShift ? (
-                <Icon name="Check" className="text-white" size={14} />
-              ) : (
-                <Icon name="Plus" className="text-gray-400" size={14} />
-              )}
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {shifts.map((shift, index) => (
-        <Card 
-          key={shift.id} 
-          className="p-5 hover:shadow-lg transition-all duration-300 border-2 animate-scale-in"
-          style={{ animationDelay: `${index * 100}ms` }}
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-2xl gradient-purple-pink flex items-center justify-center">
-                  <Icon name={shift.type === 'day' ? 'Sun' : 'Moon'} className="text-white" size={24} />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">{shift.date}</h3>
-                  <p className="text-muted-foreground text-sm">{shift.location}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2 mb-3">
-                <Icon name="Clock" size={16} className="text-muted-foreground" />
-                <span className="font-medium">{shift.time}</span>
-                <Badge className={getShiftBadgeColor(shift.type)}>
-                  {shift.type === 'day' ? '☀️ День' : '🌙 Ночь'}
-                </Badge>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {getStatusBadge(shift.status)}
-              </div>
-            </div>
-
-            {shift.status === 'active' && (
-              <Button className="gradient-purple-orange text-white border-0 hover:opacity-90 transition-opacity">
-                Детали
-              </Button>
-            )}
+      <Card className="p-4 gradient-blue text-white border-0">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Доступно смен</h3>
+            <p className="text-white/90 text-sm">{availableShifts.length} вариантов</p>
           </div>
-        </Card>
-      ))}
-    </div>
-  );
+          <Icon name="Briefcase" size={32} className="text-white/80" />
+        </div>
+      </Card>
 
-  const renderSchedule = () => (
-    <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Доступные смены</h2>
-        <Button className="gradient-purple-pink text-white border-0">
-          <Icon name="Filter" size={18} className="mr-2" />
-          Фильтры
+      <div className="flex gap-2 mb-4">
+        <Button className="flex-1 bg-day-shift text-yellow-900 border-2 border-yellow-400 hover:bg-yellow-100">
+          <Icon name="Sun" size={18} className="mr-2" />
+          Дневные
+        </Button>
+        <Button className="flex-1 bg-night-shift text-blue-900 border-2 border-blue-400 hover:bg-blue-100">
+          <Icon name="Moon" size={18} className="mr-2" />
+          Ночные
         </Button>
       </div>
 
-      <div className="grid gap-4">
+      <div className="space-y-3">
         {availableShifts.map((shift, index) => (
           <Card 
             key={shift.id} 
-            className="p-5 hover:shadow-lg transition-all duration-300 border-2 animate-scale-in"
-            style={{ animationDelay: `${index * 80}ms` }}
+            className="p-4 border-2 hover:shadow-lg transition-all animate-scale-in"
+            style={{ animationDelay: `${index * 50}ms` }}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl gradient-purple-orange flex items-center justify-center">
-                  <Icon name={shift.type === 'day' ? 'Sun' : 'Moon'} className="text-white" size={24} />
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start gap-3">
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                  shift.type === 'day' ? 'bg-day-shift' : 'bg-night-shift'
+                }`}>
+                  <Icon 
+                    name={shift.type === 'day' ? 'Sun' : 'Moon'} 
+                    className={shift.type === 'day' ? 'text-yellow-700' : 'text-blue-700'} 
+                    size={28} 
+                  />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg">{shift.date}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Icon name="Clock" size={14} className="text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">{shift.time}</span>
-                    <Badge className={getShiftBadgeColor(shift.type) + ' text-xs'}>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-lg">{shift.date}</h3>
+                    <Badge className={shift.type === 'day' ? 'bg-yellow-500' : 'bg-blue-500'}>
                       {shift.type === 'day' ? 'День' : 'Ночь'}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{shift.location}</p>
+                  <p className="text-sm text-muted-foreground">{shift.dayOfWeek}</p>
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center gap-1 text-sm">
+                      <Icon name="Clock" size={14} className="text-muted-foreground" />
+                      <span className="font-medium">{shift.time}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm">
+                      <Icon name="MapPin" size={14} className="text-muted-foreground" />
+                      <span>{shift.location}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <Button className="gradient-purple-pink text-white border-0 hover:opacity-90 transition-opacity">
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t">
+              <div className="flex items-center gap-3">
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground">Мест</p>
+                  <p className="text-lg font-bold text-primary">{shift.slots}</p>
+                </div>
+                <div className="w-px h-8 bg-border"></div>
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground">Оплата</p>
+                  <p className="text-lg font-bold text-secondary">{shift.pay} ₽</p>
+                </div>
+              </div>
+              <Button className="gradient-blue text-white border-0 hover:opacity-90">
+                <Icon name="Plus" size={18} className="mr-1" />
                 Записаться
               </Button>
             </div>
@@ -272,188 +132,217 @@ const Index = () => {
     </div>
   );
 
-  const renderProfile = () => (
-    <div className="space-y-6 animate-fade-in">
-      <Card className="p-6 gradient-purple-pink text-white border-0">
-        <div className="flex items-center gap-4">
-          <Avatar className="w-20 h-20 border-4 border-white">
-            <AvatarImage src="" />
-            <AvatarFallback className="text-2xl bg-white text-primary font-bold">ИВ</AvatarFallback>
-          </Avatar>
+  const renderMyShifts = () => (
+    <div className="space-y-4 animate-fade-in">
+      <Card className="p-4 gradient-green text-white border-0 mb-4">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Иван Васильев</h2>
-            <p className="text-white/90">ID: 12345</p>
+            <h3 className="text-lg font-semibold">Мои смены</h3>
+            <p className="text-white/90 text-sm">
+              {myShifts.filter(s => s.status === 'upcoming').length} предстоящих
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-white/90 text-sm">Заработок</p>
+            <p className="text-2xl font-bold">
+              {myShifts.filter(s => s.status === 'upcoming').reduce((sum, s) => sum + s.pay, 0)} ₽
+            </p>
           </div>
         </div>
       </Card>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="p-5 text-center border-2 hover:shadow-lg transition-all">
-          <div className="w-12 h-12 rounded-full gradient-purple-pink mx-auto mb-3 flex items-center justify-center">
+      <div className="space-y-3">
+        {myShifts.map((shift, index) => (
+          <Card 
+            key={shift.id} 
+            className={`p-4 border-2 hover:shadow-lg transition-all animate-scale-in ${
+              shift.status === 'completed' ? 'opacity-60' : ''
+            }`}
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3 flex-1">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  shift.type === 'day' ? 'bg-day-shift' : 'bg-night-shift'
+                }`}>
+                  <Icon 
+                    name={shift.type === 'day' ? 'Sun' : 'Moon'} 
+                    className={shift.type === 'day' ? 'text-yellow-700' : 'text-blue-700'} 
+                    size={24} 
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold">{shift.date}</h3>
+                    <Badge className={
+                      shift.status === 'upcoming' ? 'bg-green-500' : 'bg-gray-400'
+                    }>
+                      {shift.status === 'upcoming' ? 'Предстоит' : 'Завершена'}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
+                    <Icon name="Clock" size={14} />
+                    <span>{shift.time}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Icon name="MapPin" size={14} />
+                    <span>{shift.location}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Оплата</p>
+                <p className="text-xl font-bold text-secondary">{shift.pay} ₽</p>
+                {shift.status === 'upcoming' && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2 text-red-600 border-red-600 hover:bg-red-50"
+                  >
+                    Отменить
+                  </Button>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderProfile = () => (
+    <div className="space-y-4 animate-fade-in">
+      <Card className="p-5 gradient-blue text-white border-0">
+        <div className="flex items-center gap-4">
+          <Avatar className="w-20 h-20 border-4 border-white">
+            <AvatarFallback className="text-2xl bg-white text-primary font-bold">
+              АП
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="text-2xl font-bold">Алексей Петров</h2>
+            <p className="text-white/90">ID: 78945</p>
+            <div className="flex items-center gap-1 mt-1">
+              <Icon name="Star" size={16} className="text-yellow-300 fill-yellow-300" />
+              <span className="font-semibold">4.9</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Card className="p-4 text-center border-2">
+          <div className="w-12 h-12 rounded-full gradient-blue mx-auto mb-2 flex items-center justify-center">
             <Icon name="Clock" className="text-white" size={24} />
           </div>
-          <div className="text-3xl font-bold text-primary mb-1">156</div>
-          <div className="text-sm text-muted-foreground">Часов отработано</div>
+          <div className="text-2xl font-bold text-primary mb-1">248</div>
+          <div className="text-xs text-muted-foreground">Часов отработано</div>
         </Card>
 
-        <Card className="p-5 text-center border-2 hover:shadow-lg transition-all">
-          <div className="w-12 h-12 rounded-full gradient-purple-orange mx-auto mb-3 flex items-center justify-center">
-            <Icon name="CalendarCheck" className="text-white" size={24} />
+        <Card className="p-4 text-center border-2">
+          <div className="w-12 h-12 rounded-full gradient-green mx-auto mb-2 flex items-center justify-center">
+            <Icon name="Wallet" className="text-white" size={24} />
           </div>
-          <div className="text-3xl font-bold text-secondary mb-1">24</div>
-          <div className="text-sm text-muted-foreground">Смен завершено</div>
+          <div className="text-2xl font-bold text-secondary mb-1">59,200₽</div>
+          <div className="text-xs text-muted-foreground">Заработано</div>
+        </Card>
+
+        <Card className="p-4 text-center border-2">
+          <div className="w-12 h-12 rounded-full bg-yellow-400 mx-auto mb-2 flex items-center justify-center">
+            <Icon name="CalendarCheck" className="text-yellow-900" size={24} />
+          </div>
+          <div className="text-2xl font-bold mb-1">42</div>
+          <div className="text-xs text-muted-foreground">Смен завершено</div>
+        </Card>
+
+        <Card className="p-4 text-center border-2">
+          <div className="w-12 h-12 rounded-full bg-blue-400 mx-auto mb-2 flex items-center justify-center">
+            <Icon name="TrendingUp" className="text-blue-900" size={24} />
+          </div>
+          <div className="text-2xl font-bold mb-1">98%</div>
+          <div className="text-xs text-muted-foreground">Явка</div>
         </Card>
       </div>
 
-      <Card className="p-5 border-2">
-        <h3 className="font-semibold text-lg mb-4">Контактная информация</h3>
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <Icon name="Phone" size={20} className="text-muted-foreground" />
-            <span>+7 (999) 123-45-67</span>
+      <Card className="p-4 border-2">
+        <h3 className="font-semibold text-base mb-3">Контакты</h3>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <Icon name="Phone" size={18} className="text-muted-foreground" />
+            <span>+7 (999) 876-54-32</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Icon name="Mail" size={20} className="text-muted-foreground" />
-            <span>ivan.vasilev@email.com</span>
+          <div className="flex items-center gap-2 text-sm">
+            <Icon name="Mail" size={18} className="text-muted-foreground" />
+            <span>aleksey.petrov@email.com</span>
           </div>
         </div>
       </Card>
 
-      <Button className="w-full gradient-purple-pink text-white border-0 h-12 text-base hover:opacity-90 transition-opacity">
+      <Button className="w-full gradient-blue text-white border-0 h-12 hover:opacity-90">
         Редактировать профиль
       </Button>
     </div>
   );
 
-  const renderNotifications = () => (
-    <div className="space-y-4 animate-fade-in fixed bottom-24 left-4 w-80 bg-background p-4 rounded-lg shadow-xl border-2 max-h-96 overflow-y-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Уведомления</h2>
-        <Badge className="bg-red-500 text-white">
-          {notifications.filter(n => !n.read).length} новых
-        </Badge>
-      </div>
-
-      {notifications.map((notif, index) => (
-        <Card 
-          key={notif.id} 
-          className={`p-5 hover:shadow-lg transition-all duration-300 border-2 animate-scale-in ${
-            !notif.read ? 'border-primary bg-purple-50' : ''
-          }`}
-          style={{ animationDelay: `${index * 100}ms` }}
-        >
-          <div className="flex gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-              notif.type === 'new-shift' ? 'gradient-purple-pink' :
-              notif.type === 'reminder' ? 'gradient-purple-orange' :
-              'bg-gray-200'
-            }`}>
-              <Icon 
-                name={
-                  notif.type === 'new-shift' ? 'CalendarPlus' :
-                  notif.type === 'reminder' ? 'Bell' :
-                  'Info'
-                } 
-                className={notif.type === 'info' ? 'text-gray-600' : 'text-white'} 
-                size={24} 
-              />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-base">{notif.title}</h3>
-                {!notif.read && (
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">{notif.message}</p>
-              <span className="text-xs text-muted-foreground">{notif.time}</span>
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
-  );
-
   const renderContent = () => {
     switch (activeTab) {
-      case 'shifts':
-        return renderShifts();
-      case 'schedule':
-        return renderSchedule();
+      case 'board':
+        return renderBoard();
+      case 'my-shifts':
+        return renderMyShifts();
       case 'profile':
         return renderProfile();
-      case 'notifications':
-        return renderNotifications();
       default:
-        return renderShifts();
+        return renderBoard();
     }
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <header className="gradient-purple-pink text-white p-6 pb-8 rounded-b-3xl shadow-lg">
-        <div className="max-w-md mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-4xl font-bold text-green-400">Персонал 24/7</h1>
+    <div className="min-h-screen bg-background pb-20">
+      <header className="gradient-blue text-white p-5 shadow-lg sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Работа на складе</h1>
+              <p className="text-white/90 text-sm">Выбирайте смены и зарабатывайте</p>
+            </div>
             <Button variant="ghost" className="text-white hover:bg-white/20">
-              <Icon name="Settings" size={24} />
+              <Icon name="Bell" size={24} />
             </Button>
           </div>
-          <p className="text-white/90">Управление сменами сотрудников</p>
         </div>
       </header>
 
-      <main className="fixed bottom-32 left-4 w-96 px-4">
+      <main className="max-w-2xl mx-auto px-4 py-4">
         {renderContent()}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
-        <div className="max-w-md mx-auto grid grid-cols-4 gap-1">
+        <div className="max-w-2xl mx-auto grid grid-cols-3">
           <button
-            onClick={() => setActiveTab('shifts')}
+            onClick={() => setActiveTab('board')}
             className={`flex flex-col items-center justify-center py-3 transition-all ${
-              activeTab === 'shifts' 
-                ? 'text-primary' 
-                : 'text-muted-foreground'
+              activeTab === 'board' ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
-            <Icon name="Briefcase" size={24} />
-            <span className="text-xs mt-1 font-medium">Смены</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('schedule')}
-            className={`flex flex-col items-center justify-center py-3 transition-all ${
-              activeTab === 'schedule' 
-                ? 'text-primary' 
-                : 'text-muted-foreground'
-            }`}
-          >
-            <Icon name="Calendar" size={24} />
-            <span className="text-xs mt-1 font-medium">Расписание</span>
+            <Icon name="LayoutGrid" size={24} />
+            <span className="text-xs mt-1 font-medium">Доска смен</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('notifications')}
-            className={`flex flex-col items-center justify-center py-3 transition-all relative ${
-              activeTab === 'notifications' 
-                ? 'text-primary' 
-                : 'text-muted-foreground'
+            onClick={() => setActiveTab('my-shifts')}
+            className={`flex flex-col items-center justify-center py-3 transition-all ${
+              activeTab === 'my-shifts' ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
-            <Icon name="Bell" size={24} />
-            {notifications.filter(n => !n.read).length > 0 && (
-              <div className="absolute top-2 right-1/4 w-2 h-2 bg-red-500 rounded-full"></div>
-            )}
-            <span className="text-xs mt-1 font-medium">Уведомления</span>
+            <Icon name="CalendarDays" size={24} />
+            <span className="text-xs mt-1 font-medium">Мои смены</span>
           </button>
-          
+
           <button
             onClick={() => setActiveTab('profile')}
             className={`flex flex-col items-center justify-center py-3 transition-all ${
-              activeTab === 'profile' 
-                ? 'text-primary' 
-                : 'text-muted-foreground'
+              activeTab === 'profile' ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
             <Icon name="User" size={24} />
