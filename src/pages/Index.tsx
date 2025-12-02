@@ -327,7 +327,7 @@ const Index = () => {
       <header className="gradient-purple-pink text-white p-6 pb-8 rounded-b-3xl shadow-lg">
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold">Персонал 24/7</h1>
+            <h1 className="text-4xl font-bold text-green-400">Персонал 24/7</h1>
             <Button variant="ghost" className="text-white hover:bg-white/20">
               <Icon name="Settings" size={24} />
             </Button>
