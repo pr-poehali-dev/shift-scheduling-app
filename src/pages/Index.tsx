@@ -122,78 +122,64 @@ const Index = () => {
         </Badge>
       </div>
 
-      <Card className="p-5 border-2 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Icon name="Sun" className="text-yellow-600" size={24} />
-          <h3 className="font-semibold text-lg">Дневные смены (8:00 - 20:00)</h3>
+      <Card className="p-3 border-2 mb-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Icon name="Sun" className="text-yellow-600" size={18} />
+          <h3 className="font-semibold text-sm">Дневные смены (8:00 - 20:00)</h3>
         </div>
-        <div className="grid grid-cols-7 gap-2 mb-2">
+        <div className="grid grid-cols-7 gap-1 mb-1">
           {weekDays.map((day, index) => (
-            <div key={index} className="text-center text-xs font-medium text-muted-foreground">
+            <div key={index} className="text-center text-[10px] font-medium text-muted-foreground">
               {day}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-2 mb-2">
-          {weekDates.map((date, index) => (
-            <div key={index} className="text-center text-xs text-muted-foreground">
-              {date}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1">
           {[true, false, true, true, false, true, false].map((hasShift, index) => (
             <div 
               key={index} 
-              className={`h-16 rounded-lg flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
+              className={`h-10 rounded-md flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
                 hasShift 
                   ? 'gradient-purple-pink text-white' 
-                  : 'bg-gray-100 hover:bg-gray-200 border-2 border-dashed border-gray-300'
+                  : 'bg-gray-100 hover:bg-gray-200 border border-dashed border-gray-300'
               }`}
             >
               {hasShift ? (
-                <Icon name="Check" className="text-white" size={20} />
+                <Icon name="Check" className="text-white" size={14} />
               ) : (
-                <Icon name="Plus" className="text-gray-400" size={20} />
+                <Icon name="Plus" className="text-gray-400" size={14} />
               )}
             </div>
           ))}
         </div>
       </Card>
 
-      <Card className="p-5 border-2 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Icon name="Moon" className="text-indigo-600" size={24} />
-          <h3 className="font-semibold text-lg">Ночные смены (20:00 - 8:00)</h3>
+      <Card className="p-3 border-2 mb-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Icon name="Moon" className="text-indigo-600" size={18} />
+          <h3 className="font-semibold text-sm">Ночные смены (20:00 - 8:00)</h3>
         </div>
-        <div className="grid grid-cols-7 gap-2 mb-2">
+        <div className="grid grid-cols-7 gap-1 mb-1">
           {weekDays.map((day, index) => (
-            <div key={index} className="text-center text-xs font-medium text-muted-foreground">
+            <div key={index} className="text-center text-[10px] font-medium text-muted-foreground">
               {day}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-2 mb-2">
-          {weekDates.map((date, index) => (
-            <div key={index} className="text-center text-xs text-muted-foreground">
-              {date}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1">
           {[false, true, false, false, true, true, false].map((hasShift, index) => (
             <div 
               key={index} 
-              className={`h-16 rounded-lg flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
+              className={`h-10 rounded-md flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
                 hasShift 
                   ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-100 hover:bg-gray-200 border-2 border-dashed border-gray-300'
+                  : 'bg-gray-100 hover:bg-gray-200 border border-dashed border-gray-300'
               }`}
             >
               {hasShift ? (
-                <Icon name="Check" className="text-white" size={20} />
+                <Icon name="Check" className="text-white" size={14} />
               ) : (
-                <Icon name="Plus" className="text-gray-400" size={20} />
+                <Icon name="Plus" className="text-gray-400" size={14} />
               )}
             </div>
           ))}
