@@ -30,6 +30,10 @@ interface MyShift {
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabType>('board');
+  const [filterShiftType, setFilterShiftType] = useState<'all' | 'day' | 'night'>('all');
+  const [filterDate, setFilterDate] = useState<string>('all');
+  const [filterLocation, setFilterLocation] = useState<string>('all');
+  const [showFilters, setShowFilters] = useState(false);
 
   const availableShifts: AvailableShift[] = [
     { id: '1', date: '2 дек', dayOfWeek: 'Понедельник', time: '8:00 - 20:00', type: 'day', location: 'Склад Север', slots: 5, pay: 2400 },
@@ -46,31 +50,128 @@ const Index = () => {
     { id: '3', date: '1 декабря', time: '8:00 - 20:00', type: 'day', location: 'Склад Запад', status: 'completed', pay: 2400 },
   ];
 
+  const allLocations = Array.from(new Set(availableShifts.map(s => s.location)));
+  const allDates = Array.from(new Set(availableShifts.map(s => s.date)));
+
+  const filteredShifts = availableShifts.filter(shift => {
+    if (filterShiftType !== 'all' && shift.type !== filterShiftType) return false;
+    if (filterDate !== 'all' && shift.date !== filterDate) return false;
+    if (filterLocation !== 'all' && shift.location !== filterLocation) return false;
+    return true;
+  });
+
   const renderBoard = () => (
     <div className="space-y-4 animate-fade-in">
       <Card className="p-4 gradient-blue text-white border-0">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold">Доступно смен</h3>
-            <p className="text-white/90 text-sm">{availableShifts.length} вариантов</p>
+            <p className="text-white/90 text-sm">{filteredShifts.length} вариантов</p>
           </div>
           <Icon name="Briefcase" size={32} className="text-white/80" />
         </div>
       </Card>
 
       <div className="flex gap-2 mb-4">
-        <Button className="flex-1 bg-day-shift text-yellow-900 border-2 border-yellow-400 hover:bg-yellow-100">
+        <Button 
+          onClick={() => setFilterShiftType('all')}
+          className={`flex-1 ${filterShiftType === 'all' ? 'gradient-blue text-white' : 'bg-gray-100 text-gray-700'} border-0 hover:opacity-90`}
+        >
+          <Icon name="List" size={18} className="mr-2" />
+          Все
+        </Button>
+        <Button 
+          onClick={() => setFilterShiftType('day')}
+          className={`flex-1 ${filterShiftType === 'day' ? 'bg-day-shift text-yellow-900 border-2 border-yellow-400' : 'bg-gray-100 text-gray-700'} hover:bg-yellow-100`}
+        >
           <Icon name="Sun" size={18} className="mr-2" />
           Дневные
         </Button>
-        <Button className="flex-1 bg-night-shift text-blue-900 border-2 border-blue-400 hover:bg-blue-100">
+        <Button 
+          onClick={() => setFilterShiftType('night')}
+          className={`flex-1 ${filterShiftType === 'night' ? 'bg-night-shift text-blue-900 border-2 border-blue-400' : 'bg-gray-100 text-gray-700'} hover:bg-blue-100`}
+        >
           <Icon name="Moon" size={18} className="mr-2" />
           Ночные
         </Button>
       </div>
 
-      <div className="space-y-3">
-        {availableShifts.map((shift, index) => (
+      <Card className="p-4 border-2 mb-4">
+        <Button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="w-full flex items-center justify-between bg-white hover:bg-gray-50 text-foreground border-0"
+        >
+          <div className="flex items-center gap-2">
+            <Icon name="Filter" size={18} />
+            <span className="font-semibold">Фильтры</span>
+          </div>
+          <Icon name={showFilters ? 'ChevronUp' : 'ChevronDown'} size={20} />
+        </Button>
+        
+        {showFilters && (
+          <div className="mt-4 space-y-3 animate-fade-in">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Дата</label>
+              <select 
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className="w-full p-2 border-2 rounded-lg bg-white text-sm focus:border-primary focus:outline-none"
+              >
+                <option value="all">Все даты</option>
+                {allDates.map(date => (
+                  <option key={date} value={date}>{date}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-2 block">Склад</label>
+              <select 
+                value={filterLocation}
+                onChange={(e) => setFilterLocation(e.target.value)}
+                className="w-full p-2 border-2 rounded-lg bg-white text-sm focus:border-primary focus:outline-none"
+              >
+                <option value="all">Все склады</option>
+                {allLocations.map(location => (
+                  <option key={location} value={location}>{location}</option>
+                ))}
+              </select>
+            </div>
+            
+            <Button 
+              onClick={() => {
+                setFilterShiftType('all');
+                setFilterDate('all');
+                setFilterLocation('all');
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              Сбросить фильтры
+            </Button>
+          </div>
+        )}
+      </Card>
+
+      {filteredShifts.length === 0 ? (
+        <Card className="p-8 text-center border-2">
+          <Icon name="Search" size={48} className="mx-auto text-muted-foreground mb-3" />
+          <h3 className="font-semibold text-lg mb-2">Смены не найдены</h3>
+          <p className="text-sm text-muted-foreground mb-4">Попробуйте изменить параметры фильтров</p>
+          <Button 
+            onClick={() => {
+              setFilterShiftType('all');
+              setFilterDate('all');
+              setFilterLocation('all');
+            }}
+            className="gradient-blue text-white border-0"
+          >
+            Сбросить фильтры
+          </Button>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {filteredShifts.map((shift, index) => (
           <Card 
             key={shift.id} 
             className="p-4 border-2 hover:shadow-lg transition-all animate-scale-in"
@@ -128,7 +229,8 @@ const Index = () => {
             </div>
           </Card>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 
