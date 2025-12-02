@@ -259,7 +259,7 @@ const Index = () => {
   );
 
   const renderNotifications = () => (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-4 animate-fade-in fixed bottom-24 left-4 w-80 bg-background p-4 rounded-lg shadow-xl border-2 max-h-96 overflow-y-auto">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Уведомления</h2>
         <Badge className="bg-red-500 text-white">
