@@ -110,6 +110,9 @@ const Index = () => {
     return <Badge className={colors[status]}>{labels[status]}</Badge>;
   };
 
+  const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  const weekDates = ['2 дек', '3 дек', '4 дек', '5 дек', '6 дек', '7 дек', '8 дек'];
+
   const renderShifts = () => (
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
@@ -118,6 +121,84 @@ const Index = () => {
           {shifts.filter(s => s.status === 'upcoming').length} предстоит
         </Badge>
       </div>
+
+      <Card className="p-5 border-2 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Icon name="Sun" className="text-yellow-600" size={24} />
+          <h3 className="font-semibold text-lg">Дневные смены (8:00 - 20:00)</h3>
+        </div>
+        <div className="grid grid-cols-7 gap-2 mb-2">
+          {weekDays.map((day, index) => (
+            <div key={index} className="text-center text-xs font-medium text-muted-foreground">
+              {day}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-2 mb-2">
+          {weekDates.map((date, index) => (
+            <div key={index} className="text-center text-xs text-muted-foreground">
+              {date}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-2">
+          {[true, false, true, true, false, true, false].map((hasShift, index) => (
+            <div 
+              key={index} 
+              className={`h-16 rounded-lg flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
+                hasShift 
+                  ? 'gradient-purple-pink text-white' 
+                  : 'bg-gray-100 hover:bg-gray-200 border-2 border-dashed border-gray-300'
+              }`}
+            >
+              {hasShift ? (
+                <Icon name="Check" className="text-white" size={20} />
+              ) : (
+                <Icon name="Plus" className="text-gray-400" size={20} />
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="p-5 border-2 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Icon name="Moon" className="text-indigo-600" size={24} />
+          <h3 className="font-semibold text-lg">Ночные смены (20:00 - 8:00)</h3>
+        </div>
+        <div className="grid grid-cols-7 gap-2 mb-2">
+          {weekDays.map((day, index) => (
+            <div key={index} className="text-center text-xs font-medium text-muted-foreground">
+              {day}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-2 mb-2">
+          {weekDates.map((date, index) => (
+            <div key={index} className="text-center text-xs text-muted-foreground">
+              {date}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-2">
+          {[false, true, false, false, true, true, false].map((hasShift, index) => (
+            <div 
+              key={index} 
+              className={`h-16 rounded-lg flex items-center justify-center cursor-pointer transition-all hover:scale-105 ${
+                hasShift 
+                  ? 'bg-indigo-600 text-white' 
+                  : 'bg-gray-100 hover:bg-gray-200 border-2 border-dashed border-gray-300'
+              }`}
+            >
+              {hasShift ? (
+                <Icon name="Check" className="text-white" size={20} />
+              ) : (
+                <Icon name="Plus" className="text-gray-400" size={20} />
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
 
       {shifts.map((shift, index) => (
         <Card 
